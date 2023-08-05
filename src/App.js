@@ -169,7 +169,7 @@ function App() {
     const fetchData = async () => {
       try {
         // Replace 'your_server_url' with the URL where your Node.js server is running
-        const serverUrl = ' http://localhost:5000/api/getUserData';
+        const serverUrl = 'https://server-zalo.onrender.com/api/getUserData';
 
         const response = await axios.post(serverUrl, { Arraydata });
         setResults(response.data);
