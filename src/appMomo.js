@@ -191,7 +191,13 @@ function DataTable() {
     const dateColumns = Array.from({ length: 30 }, (_, index) => index + 1);
     const currentDate = new Date();
     const currentDay = currentDate.getDate(); // Lấy ngày hiện tại
-    console.log(currentDay)
+
+    const homqua = new Date();
+    homqua.setDate(homqua.getDate() - 1);
+
+    const currentDayhomqua = homqua.getDate();
+
+    console.log('hôm qua', currentDayhomqua)
     return (
         <div className="table-container">
             <div className="button-container">
@@ -213,7 +219,8 @@ function DataTable() {
                         <th>Shop</th>
                         <th>Username</th>
                         <th>Password</th>
-                        <th>Today</th>
+                        <th>Hôm nay</th>
+                        <th>Hôm qua</th>
                         {dateColumns.map((day) => (
                             <th key={day}>Ngày {day}</th>
                         ))}
@@ -226,6 +233,7 @@ function DataTable() {
                             <td>{data[0].username}</td>
                             <td>{data[0].password}</td>
                             <td>{data[currentDay - 1]?.data?.totalSuccessAmount.toLocaleString() || 0}</td>
+                            <td>{data[currentDayhomqua - 1]?.data?.totalSuccessAmount.toLocaleString() || 0}</td>
                             {dateColumns.map((day, dayIndex) => (
                                 <td key={dayIndex}>
                                     {data[dayIndex] ? (data[dayIndex].data.totalSuccessAmount.toLocaleString() || 0) : 0}
