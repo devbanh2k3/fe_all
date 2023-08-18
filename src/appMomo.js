@@ -210,6 +210,7 @@ function DataTable() {
             <table id="data-table">
                 <thead>
                     <tr>
+                        <th>Shop</th>
                         <th>Username</th>
                         <th>Password</th>
                         <th>Today</th>
@@ -221,6 +222,7 @@ function DataTable() {
                 <tbody>
                     {dataAll.map((data, index) => (
                         <tr key={index}>
+                            <td>Shop {index}</td>
                             <td>{data[0].username}</td>
                             <td>{data[0].password}</td>
                             <td>{data[currentDay - 1]?.data?.totalSuccessAmount || 0}</td>
