@@ -222,7 +222,7 @@ function DataTable() {
                 <tbody>
                     {dataAll.map((data, index) => (
                         <tr key={index}>
-                            <td>Shop {index}</td>
+                            <td>Shop {index + 1}</td>
                             <td>{data[0].username}</td>
                             <td>{data[0].password}</td>
                             <td>{data[currentDay - 1]?.data?.totalSuccessAmount || 0}</td>
