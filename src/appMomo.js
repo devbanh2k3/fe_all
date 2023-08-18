@@ -31,12 +31,7 @@ function DataTable() {
             fetchDataSequentially(index + 1);
         }, 1000); // Đợi 1 giây trước khi thực hiện yêu cầu tiếp theo
     }
-    const exportToExcel = () => {
-        const chatId = '919990497'; // Thay RECIPIENT_CHAT_ID bằng ID của cuộc trò chuyện mong muốn
-        const excelBuffer = createExcelFromTable();
-        console.log(excelBuffer)
-        sendExcelToTelegramUsingAxios(chatId, excelBuffer);
-    };
+
     const handleStartClick = async () => {
         try {
 
@@ -134,33 +129,13 @@ function DataTable() {
             console.error('Error sending screenshot to Telegram:', error);
         }
     };
-    function sendExcelToTelegramUsingAxios(chatId, excelBuffer) {
-        const blob = new Blob([excelBuffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
 
-        const formData = new FormData();
-        formData.append('chat_id', chatId);
-        formData.append('document', blob, 'table.xlsx');
-
-        axios.post(`https://api.telegram.org/6423723783:AAG5_PUVkQPfacplV6stUXTt3qRUktDj7ws/sendDocument`, formData, {
-            //headers: formData.getHeaders() // Xóa dòng này
-        })
-            .then(response => {
-                console.log('Tệp Excel đã được gửi lên Telegram.');
-            })
-            .catch(error => {
-                console.error('Lỗi khi gửi tệp Excel lên Telegram:', error);
-            });
-    }
 
     function createExcelFromTable() {
         const worksheet = XLSX.utils.table_to_sheet(document.querySelector('table'));
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-
-        // Chuyển workbook thành buffer
-        const excelBuffer = XLSX.write(workbook, { bookType: 'xlsx', type: 'buffer' });
-
-        return excelBuffer;
+        XLSX.writeFile(workbook, 'zalopay_data.xlsx');
     }
     const dateColumns = Array.from({ length: 30 }, (_, index) => index + 1);
     const currentDate = new Date();
@@ -172,7 +147,7 @@ function DataTable() {
             <input type="file" accept=".txt" onChange={handleFileChange} />
             <button onClick={handleStartClick}>Bắt đầu</button>
             <button onClick={handleStartClickx}>test</button>
-            <button onClick={exportToExcel}>excel</button>
+            <button onClick={createExcelFromTable}>excel</button>
             <table id="data-table">
                 <thead>
                     <tr>
