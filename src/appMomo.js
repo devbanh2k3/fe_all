@@ -3,15 +3,19 @@ import axios from 'axios';
 import './appmomo.css';
 import html2canvas from 'html2canvas';
 import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 function DataTable() {
     const [dataAll, setDataAll] = useState([]);
     const [Arraydata, setArraydata] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     let datapush = []
     async function fetchDataSequentially(index) {
+
         if (index >= Arraydata.length) {
             // Khi đã hoàn thành tất cả các yêu cầu, cập nhật state và kết thúc hàm.
             console.log('datâll', datapush);
             setDataAll(datapush);
+            setIsLoading(false);
             return;
         }
 
@@ -34,15 +38,14 @@ function DataTable() {
 
     const handleStartClick = async () => {
         try {
-
+            setIsLoading(true);
+            setDataAll([]);
+            datapush = [];
             await fetchDataSequentially(0);
-
-            // const canvas = await generateCanvas();
-            // //const resizedCanvas = await resizeCanvas(canvas, 1280, 720);
-            // await sendCanvasToTelegram(canvas);
 
         } catch (error) {
             console.error('Error fetching data:', error);
+            setIsLoading(false);
         }
     };
     const handleStartClickx = async () => {
@@ -50,7 +53,8 @@ function DataTable() {
             const canvas = await generateCanvas();
             //const resizedCanvas = await resizeCanvas(canvas, 1280, 720);
             await sendCanvasToTelegram(canvas);
-
+            createExcelFromTable()
+            alert("Đã hoàn thành!")
         } catch (error) {
             console.error('Error fetching data:', error);
         }
@@ -89,7 +93,7 @@ function DataTable() {
             .slice(0, targetDayIndex + 1)
             .reduce((totalWidth, column) => totalWidth + column.offsetWidth, 0);
 
-        const canvasWidth = Math.min(canvas.width, widthToCapture);
+        const canvasWidth = Math.min(canvas.width, 1200);
 
         const croppedCanvas = document.createElement('canvas');
         croppedCanvas.width = canvasWidth;
@@ -101,8 +105,8 @@ function DataTable() {
         return croppedCanvas;
     };
     const sendCanvasToTelegram = async (canvas) => {
-        const botToken = '6423723783:AAG5_PUVkQPfacplV6stUXTt3qRUktDj7ws';
-        const chatId = '919990497';
+        const botToken = '6545044078:AAFMTyr1RoR2RrFXV2B9dk8mKGsTQyz38uM';
+        const chatId = '1603979401';
         console.log('test', canvas)
         const imageBlob = await new Promise((resolve) => {
             canvas.toBlob((blob) => {
@@ -131,23 +135,78 @@ function DataTable() {
     };
 
 
-    function createExcelFromTable() {
+    // function createExcelFromTable() {
+    //     const worksheet = XLSX.utils.table_to_sheet(document.querySelector('table'));
+    //     const workbook = XLSX.utils.book_new();
+    //     XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
+    //     XLSX.writeFile(workbook, 'zalopay_data.xlsx');
+    // }
+
+    function s2ab(s) {
+        const buf = new ArrayBuffer(s.length);
+        const view = new Uint8Array(buf);
+        for (let i = 0; i !== s.length; ++i) {
+            view[i] = s.charCodeAt(i) & 0xff;
+        }
+        return buf;
+    }
+    const createExcelFromTable = () => {
         const worksheet = XLSX.utils.table_to_sheet(document.querySelector('table'));
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, 'Sheet1');
-        XLSX.writeFile(workbook, 'zalopay_data.xlsx');
-    }
+
+        const excelBlob = new Blob([s2ab(XLSX.write(workbook, { bookType: 'xlsx', type: 'binary' }))], {
+            type: 'application/octet-stream'
+        });
+
+        //saveAs(excelBlob, 'Momo_data.xlsx');
+
+        // Gửi file Excel lên Telegram sau khi tạo và tải xuống
+        sendExcelToTelegram(excelBlob);
+    };
+    const sendExcelToTelegram = async (excelBlob) => {
+        const botToken = '6545044078:AAFMTyr1RoR2RrFXV2B9dk8mKGsTQyz38uM';
+        const chatId = '1603979401';
+
+        const formData = new FormData();
+        formData.append('chat_id', chatId);
+        formData.append('document', excelBlob, 'zalopay_data.xlsx');
+
+        try {
+            const response = await axios.post(
+                `https://api.telegram.org/bot${botToken}/sendDocument`,
+                formData,
+                {
+                    headers: {
+                        'Content-Type': 'multipart/form-data',
+                    },
+                }
+            );
+            console.log('Excel file sent to Telegram:', response.data);
+        } catch (error) {
+            console.error('Error sending Excel file to Telegram:', error);
+        }
+    };
+
     const dateColumns = Array.from({ length: 30 }, (_, index) => index + 1);
     const currentDate = new Date();
     const currentDay = currentDate.getDate(); // Lấy ngày hiện tại
     console.log(currentDay)
     return (
         <div className="table-container">
+            <div className="button-container">
+                <label className="custom-file-upload">
+                    <input type="file" accept=".txt" onChange={handleFileChange} />
+                    Tải lên tệp
+                </label>
+                <button onClick={handleStartClick}>Bắt đầu</button>
+                <button onClick={handleStartClickx}>Chụp + excel và gửi</button>
 
-            <input type="file" accept=".txt" onChange={handleFileChange} />
-            <button onClick={handleStartClick}>Bắt đầu</button>
-            <button onClick={handleStartClickx}>test</button>
-            <button onClick={createExcelFromTable}>excel</button>
+            </div>
+
+
+            {isLoading && <div className="loading-overlay">Đang tải...</div>}
+
             <table id="data-table">
                 <thead>
                     <tr>
