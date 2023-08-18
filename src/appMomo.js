@@ -16,7 +16,7 @@ function DataTable() {
         }
 
         const item = Arraydata[index];
-        const url = 'http://localhost:5000/get-data';
+        const url = 'https://server-zalo.onrender.com/get-data';
         const requestData = { username: item.username, password: item.password };
 
         try {
