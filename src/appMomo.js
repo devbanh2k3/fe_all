@@ -225,10 +225,10 @@ function DataTable() {
                             <td>Shop {index + 1}</td>
                             <td>{data[0].username}</td>
                             <td>{data[0].password}</td>
-                            <td>{data[currentDay - 1]?.data?.totalSuccessAmount || 0}</td>
+                            <td>{data[currentDay - 1]?.data?.totalSuccessAmount.toLocaleString() || 0}</td>
                             {dateColumns.map((day, dayIndex) => (
                                 <td key={dayIndex}>
-                                    {data[dayIndex] ? (data[dayIndex].data.totalSuccessAmount || 0) : 0}
+                                    {data[dayIndex] ? (data[dayIndex].data.totalSuccessAmount.toLocaleString() || 0) : 0}
                                 </td>
                             ))}
                         </tr>
